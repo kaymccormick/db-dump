@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 
-requires = ['SqlAlchemy', 'plaster']
+requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy', 'zope.interface',
+            'zope.component']
 
 setup(
     name='db_dump',
