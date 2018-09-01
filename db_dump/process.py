@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import dataclass, field
-from typing import MutableSequence, AnyStr, Mapping
+from typing import MutableSequence, AnyStr, Mapping, Dict
 
 from dataclasses_json import DataClassJsonMixin
 from sqlalchemy import Column
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ProcessInfo(DataClassJsonMixin):
-    mappers: Mapping[AnyStr, MapperInfo]=field(default_factory=lambda: {})
+    mappers: Dict[AnyStr, MapperInfo]=field(default_factory=lambda: {})
 
 process_info = ProcessInfo()
 

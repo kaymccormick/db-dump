@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy', 'zope.interface',
-            'zope.component']
+            'zope.component', 'dataclasses-json', 'zope.sqlalchemy']
 
 setup(
     name='db_dump',
@@ -11,7 +11,7 @@ setup(
     install_requires=requires,
     entry_points={
         'plaster.loader_factory': [
-            'data = db_dump.main:DataLoader'
+            'data = db_dump.loader:DataLoader'
         ],
         'console_scripts': [
             'db_dump = db_dump.main:main',

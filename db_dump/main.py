@@ -12,13 +12,14 @@ from sqlalchemy.event import listen
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm import Mapper
 
+from db_dump.args import OptionAction
 from db_dump.events import handle_after_create, handle_mapper_configured
 #from db_dump.model import Test1, Base
 
 from zope.component.hooks import setSite, getSiteManager
 
 from db_dump import Site, register_components
-from db_dump.process import setup_jsonencoder, process_info
+from db_dump.process import setup_jsonencoder, process_info, ProcessInfo
 
 logger = logging.getLogger(__name__)
 
@@ -31,32 +32,18 @@ def handle_parent_attach(target, parent):
     logger.debug("handle_parent_attach: %s (%s), %s", target, type(target), parent)
 
 
-class OptionAction(argparse.Action):
-    def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        if nargs is not None:
-            raise ValueError("nargs not allowed")
-        super().__init__(option_strings, dest, **kwargs)
-
-    def __call__(self, parser, namespace, values, option_string=None):
-        sv = str(values)
-        split = sv.split('=', 2)
-        key = split[0].strip()
-        val = split[1].strip()
-        attr = getattr(namespace, self.dest)
-        if not attr:
-            setattr(namespace, self.dest, {})
-
-        getattr(namespace, self.dest)[key] = val
-
-
-
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--load', action="store_true")
+    parser.add_argument('--path', action="append")
     parser.add_argument('config_uri', help="Provide config_uri for configuration via plaster.")
     parser.add_argument('--section', default='db_dump')
     parser.add_argument("--create-schema", help="Specify this to create the database schema.",
                         action="store_true")
-    parser.add_argument("-o", "--output-file", help="Output the primary JSON to this file.")
+    parser.add_argument("--input-file", "-i", type=argparse.FileType('r'))
+    parser.add_argument("--output-file", "-o", type=argparse.FileType('w'))
+    # parser.add_argument("-f", "--file", help="Output the primary JSON to this file.",
+    #                     type=open)
     parser.add_argument("--stdout", help="Output JSON to standard output.",
                         action="store_true")
     parser.add_argument("--model", required=True, help="Load the specified module package.")
@@ -64,11 +51,8 @@ def main():
     (args, remain) = parser.parse_known_args(sys.argv[1:])
 
     config_uri = args.config_uri
-
-    #loader = plaster.get_loader(config_uri)
-    #print(loader)
-
-    #sections = plaster.get_sections(config_uri)
+    if args.path:
+        sys.path.extend(args.path)
 
     settings = plaster.get_settings(config_uri, args.section)
     if args.config:
@@ -80,6 +64,10 @@ def main():
     set_site()
     registry = getSiteManager()
     register_components(registry)
+
+    if args.load:
+        ProcessInfo.from_json()
+
 
     listen(Mapper, 'mapper_configured', handle_mapper_configured)
     listen(Table, 'after_parent_attach', handle_parent_attach)
@@ -105,18 +93,22 @@ def main():
 
     (setup_jsonencoder())()
 
-    f = None
-    if args.output_file == "-":
-        f = sys.stdout
-    elif args.output_file:
-        f = open(args.output_file, 'w')
+    # f = None
+    # if args.file == "-":
+    #     f = sys.stdout
+    # elif args.output_file:
+    if args.input_file:
+        struct = ProcessInfo.from_json(''.join(args.input_file.readlines()))
+        logger.debug(struct)
 
     json = process_info.to_json()
+
+    if args.output_file:
+        args.output_file.write(json)
+        args.output_file.close()
+
     if args.stdout:
         print(json)
-    if f:
-        f.write(json)
-        f.close()
 
     # for k, v in mappers.items():
     #     v: MapperInfo
