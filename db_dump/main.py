@@ -1,3 +1,4 @@
+import gzip
 import importlib
 import json
 import os
@@ -44,11 +45,14 @@ class DataUriConfigParser(ConfigParser, DataURI):
 class DataLoader(_Loader):
     def __init__(self, uri: PlasterURL):
         self.uri = uri
-        #uri = uri.replace("://", ":")
-        print("uri = ", uri)
+
         self.data_uri = DataURI("data:" + uri.path)
         self.parser = DataUriConfigParser(self.data_uri)
-        self.parser.read_string(self.data_uri.data.decode('utf-8'))
+#        if self.data_uri.co
+        if self.data_uri.mimetype == "application/x-gzip":
+            self.parser.read_string(gzip.decompress(self.data_uri.data).decode('utf-8'))
+        else:
+            self.parser.read_string(self.data_uri.data.decode(self.data_uri.charset or 'utf-8'))
 
     def _get_parser(self, defaults=None):
         defaults = self._get_defaults(defaults)
@@ -200,16 +204,11 @@ def main():
     (args, remain) = parser.parse_known_args(sys.argv[1:])
 
     config_uri = args.config_uri
-    defaults = {}
-    if args.config:
-        defaults = args.config
 
-    loader = plaster.get_loader(config_uri)
-    print(loader)
+    #loader = plaster.get_loader(config_uri)
+    #print(loader)
 
-
-
-    sections = plaster.get_sections(config_uri)
+    #sections = plaster.get_sections(config_uri)
 
     settings = plaster.get_settings(config_uri, 'db_dump')
     if args.config:
@@ -217,9 +216,6 @@ def main():
 
     # DONT LOG BEFORE HERE
     setup_logging(config_uri)
-    logger.debug("Settings is %s", settings)
-
-    logger.debug("args = %s", args)
 
     set_site()
     registry = getSiteManager()
