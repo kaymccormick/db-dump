@@ -1,13 +1,25 @@
 import json
+import logging
+from dataclasses import dataclass, field
+from typing import MutableSequence, AnyStr, Mapping
 
+from dataclasses_json import DataClassJsonMixin
 from sqlalchemy import Column
 from sqlalchemy.orm import Mapper
-from zope.interface import implementer
 
-from db_dump.info import ColumnInfo, TypeInfo, MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo
+from db_dump.info import ColumnInfo, TypeInfo, \
+    MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo
 
+logger = logging.getLogger(__name__)
+
+@dataclass
+class ProcessInfo(DataClassJsonMixin):
+    mappers: Mapping[AnyStr, MapperInfo]=field(default_factory=lambda: {})
+
+process_info = ProcessInfo()
 
 def process_relationship(mapper_key, rel):
+    logger.info("entering process_relationship")
     y = rel.argument
     if callable(y):
         z = y()
@@ -35,6 +47,7 @@ def process_relationship(mapper_key, rel):
 
 
 def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
+    logger.info("entering process_mapper")
     mapped_table = mapper.mapped_table  # type: Table
     mapper_key = mapper.local_table.key
 
@@ -59,7 +72,6 @@ def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
         else:
             column_map[t.key][col.key] = col_index
 
-
         col_index = col_index + 1
 
     relationships = []
@@ -72,10 +84,13 @@ def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
                     mapped_table=mapped_table.key,
                     column_map=column_map,
                     mapper_key=mapper_key)
+    process_info.mappers[mapper_key] = mi
     return mi
     #self.info.mappers[mapper_key] = mi
 
 def setup_jsonencoder():
+    logger.info("entering setup_jsonencoder")
+
     def do_setup():
         old_default = json.JSONEncoder.default
 

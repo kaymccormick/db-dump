@@ -106,8 +106,8 @@ class TableProcessor:
 
 
 def register_components(components: Components):
-    logger.critical("REGISTERING COMPONENTS")
-    logger.info("adapted = %s", component.adaptedBy(MapperProcessor))
+#    logger.critical("REGISTERING COMPONENTS")
+#    logger.info("adapted = %s", component.adaptedBy(MapperProcessor))
     components.registerAdapter(MapperProcessor)
 #    result = IProcessor(MyMapper(None)).process()
     #components.registerAdapter(TableProcessor)

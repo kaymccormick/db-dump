@@ -6,17 +6,22 @@ from sqlalchemy.orm import relationship
 
 logger = logging.getLogger(__name__)
 
-logger.critical("in model.py")
 Base = declarative_base()
-logger.critical("in model.py %s", Base.__class__.__bases__)
 
 
 class Test1(Base):
+    """
+    Test1 entity class
+    """
     __tablename__= 'test1'
     id = Column(Integer, primary_key=True)
     child_id = Column(Integer, ForeignKey('child.id'))
     child = relationship('Child')
 
+
 class Child(Base):
+    """
+    Child entity class
+    """
     __tablename__ = 'child'
     id = Column(Integer, primary_key=True)

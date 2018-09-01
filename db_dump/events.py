@@ -18,12 +18,6 @@ def handle_mapper_configured(*args, **kwargs):
     (mapper, entity) = args
     mapper: Mapper
     logger.debug("handle_mapper_configured: %s, %s", args, kwargs)
-    logger.debug("table is %s", mapper.mapped_table)
     # all our other routine does is stuff the mapper into a dict
-    logger.debug("site = %s", getSite())
     result = process_mapper(mapper)
-    #result = IProcessor(MyMapper(mapper)).process()
-    logger.debug("result is %s", result)
     mappers[mapper.local_table.key] = result
-    #adapter = getSiteManager().queryAdapter(MyMapper(mapper), IProcessor)
-    #logger.debug("adapter is %s", adapter)

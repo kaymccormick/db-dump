@@ -10,6 +10,9 @@ setup(
     packages=find_packages(),
     install_requires=requires,
     entry_points={
+        'plaster.loader_factory': [
+            'data = db_dump.main:DataLoader'
+        ],
         'console_scripts': [
             'db_dump = db_dump.main:main',
         ],

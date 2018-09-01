@@ -1,13 +1,15 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import AnyStr, Sequence, MutableSequence, List, Tuple, Dict
 
 from dataclasses_json import DataClassJsonMixin
 from sqlalchemy import Integer
 from sqlalchemy.orm import RelationshipProperty
 
+
 @dataclass
 class InfoBase(DataClassJsonMixin):
     doc: AnyStr=None
+
 
 class Mixin:
     pass
@@ -52,7 +54,7 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, InfoBase):
 @dataclass
 class MapperInfo(Mixin, InfoBase):
     mapper_key: AnyStr=None
-    primary_key: Sequence[Tuple[AnyStr, AnyStr]]=None
+    primary_key: Sequence[Tuple[AnyStr, AnyStr]]= field(default=None)
     columns: MutableSequence[ColumnInfo]=None
     column_map: Dict[AnyStr, Integer]=None
     relationships: MutableSequence[RelationshipInfo]=None
@@ -83,5 +85,3 @@ class MapperInfosMixin:
 
     def set_mapper_info(self, mapper_key: AnyStr, mapper_info: MapperInfo) -> None:
         self.mapper_infos[mapper_key] = mapper_info
-
-
