@@ -1,22 +1,18 @@
 import importlib
-import json
 import sys
 
 import plaster
 from plaster import setup_logging
 from sqlalchemy import inspect, Table, engine_from_config
 import logging
-import argparse
 
-from sqlalchemy.dialects.postgresql.base import PGInspector
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.event import listen
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import Mapper
 
-from db_dump.args import OptionAction
+from db_dump.args import argument_parser
 from db_dump.events import handle_after_create, handle_mapper_configured
-#from db_dump.model import Test1, Base
 
 from zope.component.hooks import setSite, getSiteManager
 
@@ -35,33 +31,15 @@ def handle_parent_attach(target, parent):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--load', action="store_true")
-    parser.add_argument('--path', action="append")
-    parser.add_argument('config_uri', help="Provide config_uri for configuration via plaster.")
-    parser.add_argument('--section', default='db_dump')
-    parser.add_argument("--create-schema", help="Specify this to create the database schema.",
-                        action="store_true")
-    parser.add_argument("--input-file", "-i", type=argparse.FileType('r'))
-    parser.add_argument("--output-file", "-o", type=argparse.FileType('w'))
-    # parser.add_argument("-f", "--file", help="Output the primary JSON to this file.",
-    #                     type=open)
-    parser.add_argument("--stdout", help="Output JSON to standard output.",
-                        action="store_true")
-    parser.add_argument("--model", help="Load the specified module package.")
-    parser.add_argument("--config", metavar="KEY=VALUE", action=OptionAction, help="Specify additional configuration values.")
-    (args, remain) = parser.parse_known_args(sys.argv[1:])
+    parser = argument_parser()
+    args = parser.parse_args()
 
-    config_uri = args.config_uri
-    if args.path:
-        sys.path.extend(args.path)
-
-    settings = plaster.get_settings(config_uri, args.section)
+    settings = args.settings[args.config_uri] #plaster.get_settings(config_uri, args.section)
     if args.config:
         settings = {**settings, **args.config}
 
     # DONT LOG BEFORE HERE
-    setup_logging(config_uri)
+    setup_logging(args.config_uri)
 
     set_site()
     registry = getSiteManager()
@@ -75,6 +53,10 @@ def main():
     listen(Mapper, 'mapper_configured', handle_mapper_configured)
     listen(Table, 'after_parent_attach', handle_parent_attach)
     listen(Table, 'after_create', handle_after_create)
+    if 'sqlalchemy.url' not in settings:
+        print("No sqlalchemy.url supplied.", file=sys.stderr)
+        return 1
+
     engine = get_engine(settings)
 
     base = None
@@ -126,10 +108,6 @@ def main():
     # for k, v in mappers.items():
     #     v: MapperInfo
     #     print(v.to_json())
-
-
-
-
 
 
 def set_site():
