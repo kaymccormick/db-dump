@@ -66,8 +66,9 @@ def main():
     register_components(registry)
 
     if args.load:
-        ProcessInfo.from_json()
-
+        pi = ProcessInfo.from_json()
+        for mapper in pi.mappers.values():
+            Mapper()
 
     listen(Mapper, 'mapper_configured', handle_mapper_configured)
     listen(Table, 'after_parent_attach', handle_parent_attach)
