@@ -4,17 +4,18 @@ from dataclasses import dataclass, field
 from typing import MutableSequence, AnyStr, Mapping, Dict
 
 from dataclasses_json import DataClassJsonMixin
-from sqlalchemy import Column
-from sqlalchemy.orm import Mapper
+from sqlalchemy import Column, Table
+from sqlalchemy.orm import Mapper, RelationshipProperty
 
 from db_dump.info import ColumnInfo, TypeInfo, \
-    MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo
+    MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo, TableInfo
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class ProcessInfo(DataClassJsonMixin):
     mappers: Dict[AnyStr, MapperInfo]=field(default_factory=lambda: {})
+    tables: Dict[AnyStr, TableInfo]=field(default_factory=lambda: {})
 
 process_info = ProcessInfo()
 
@@ -101,6 +102,8 @@ def setup_jsonencoder():
                 # This is not a mistake.
                 if isinstance(obj, Column):
                     return ['Column', obj.name, obj.table.name]
+                if isinstance(obj, Table):
+                    return ['Table', obj.name]
 
                 try:
                     v = old_default(self, obj)
@@ -112,3 +115,29 @@ def setup_jsonencoder():
         json.JSONEncoder.default = MyEncoder.default
 
     return do_setup
+
+# to avoid confusion, this adapts SQLalchemy-related information
+# to our @dataclasses. There needs to be another layer
+# to adapt the data class information into application objects
+# such as ResourceManager, ResourceOperation.
+
+
+def process_table(table_name: AnyStr, table: Table) -> TableInfo:
+    tables = process_info.tables
+    assert table_name == table.name
+    i = TableInfo(name=table.name, key=table.key,
+                  columns=[], primary_key=[]
+                  )
+
+    tables[table_name] = i
+
+    primary_key = table.primary_key
+    for key_col in primary_key:
+        i.primary_key.append(key_col.key)
+
+    col: Column
+    for col in table.columns:
+        _i = ColumnInfo(name=col.name, key=col.key)
+        i.columns.append(_i)
+
+    return i

@@ -1,4 +1,5 @@
 import importlib
+import json
 import sys
 
 import plaster
@@ -8,8 +9,9 @@ import logging
 import argparse
 
 from sqlalchemy.dialects.postgresql.base import PGInspector
+from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.event import listen
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import Mapper
 
 from db_dump.args import OptionAction
@@ -19,7 +21,7 @@ from db_dump.events import handle_after_create, handle_mapper_configured
 from zope.component.hooks import setSite, getSiteManager
 
 from db_dump import Site, register_components
-from db_dump.process import setup_jsonencoder, process_info, ProcessInfo
+from db_dump.process import setup_jsonencoder, process_info, ProcessInfo, process_table
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,7 @@ def main():
     #                     type=open)
     parser.add_argument("--stdout", help="Output JSON to standard output.",
                         action="store_true")
-    parser.add_argument("--model", required=True, help="Load the specified module package.")
+    parser.add_argument("--model", help="Load the specified module package.")
     parser.add_argument("--config", metavar="KEY=VALUE", action=OptionAction, help="Specify additional configuration values.")
     (args, remain) = parser.parse_known_args(sys.argv[1:])
 
@@ -75,18 +77,23 @@ def main():
     listen(Table, 'after_create', handle_after_create)
     engine = get_engine(settings)
 
-    model_module = importlib.import_module(args.model)
     base = None
-    for k,v in model_module.__dict__.items():
-        if k == "Base":
-            pass
+    if args.model:
+        model_module = importlib.import_module(args.model)
+        base = None
+        for k,v in model_module.__dict__.items():
+            if k == "Base":
+                pass
 
-        if isinstance(v, type) and isinstance(v, DeclarativeMeta):
-            if hasattr(v, '__tablename__'):
-                myo = v()
-                #logger.debug("my o is %s", myo)
-            else:
-                base = v
+            if isinstance(v, type) and isinstance(v, DeclarativeMeta):
+                if hasattr(v, '__tablename__'):
+                    myo = v()
+                    #logger.debug("my o is %s", myo)
+                else:
+                    base = v
+    else:
+        base = declarative_base()
+
 
     if args.create_schema:
         logger.info("Creating database schema")
@@ -102,23 +109,26 @@ def main():
         struct = ProcessInfo.from_json(''.join(args.input_file.readlines()))
         logger.debug(struct)
 
-    json = process_info.to_json()
+    inspect1 = inspect(engine)  # type: Inspector
+    for table in inspect1.get_table_names():
+        table_o = Table(table, base.metadata)
+        process_info.tables[table_o.key] = process_table(table, table_o)
+
+    json_str = process_info.to_json()
 
     if args.output_file:
-        args.output_file.write(json)
+        args.output_file.write(json_str)
         args.output_file.close()
 
     if args.stdout:
-        print(json)
+        print(json_str)
 
     # for k, v in mappers.items():
     #     v: MapperInfo
     #     print(v.to_json())
 
-    inspect1 = inspect(engine) # type: PGInspector
-#    logger.debug("inspect1 = %s", inspect1)
-#    for x in inspect1.get_table_names():
-#        logger.debug("x=%s", x)
+
+
 
 
 
