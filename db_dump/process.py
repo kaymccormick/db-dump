@@ -1,7 +1,12 @@
 import json
 import logging
+import os
+import platform
+import sys
+import sysconfig
 from dataclasses import dataclass, field
-from typing import MutableSequence, AnyStr, Mapping, Dict
+from datetime import datetime
+from typing import MutableSequence, AnyStr, Mapping, Dict, NewType, Tuple, List
 
 from dataclasses_json import DataClassJsonMixin
 from sqlalchemy import Column, Table
@@ -12,10 +17,29 @@ from db_dump.info import ColumnInfo, TypeInfo, \
 
 logger = logging.getLogger(__name__)
 
+DateTime = NewType('DateTime', datetime)
+
+
 @dataclass
-class ProcessInfo(DataClassJsonMixin):
-    mappers: Dict[AnyStr, MapperInfo]=field(default_factory=lambda: {})
+class GenerationInfo(DataClassJsonMixin):
+    created: DateTime=field(default_factory=lambda: datetime.now())
+    system_alias: Tuple[AnyStr, AnyStr, AnyStr]=field(default_factory=lambda: platform.system_alias(platform.system(), platform.release(), platform.version()))
+    python_version: AnyStr=field(default_factory=lambda: platform.python_version())
+    config_vars: Dict[AnyStr, object]=field(default_factory=sysconfig.get_config_vars)
+    #environ: Dict=field(default_factory=lambda: os.environ)
+
+
+@dataclass
+class GenerationMixin:
+    generation: GenerationInfo=field(default_factory=GenerationInfo)
+
+
+
+@dataclass
+class ProcessInfo(GenerationMixin, DataClassJsonMixin):
+    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
     tables: Dict[AnyStr, TableInfo]=field(default_factory=lambda: {})
+
 
 process_info = ProcessInfo()
 
@@ -85,7 +109,7 @@ def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
                     mapped_table=mapped_table.key,
                     column_map=column_map,
                     mapper_key=mapper_key)
-    process_info.mappers[mapper_key] = mi
+    process_info.mappers.append(mi)
     return mi
     #self.info.mappers[mapper_key] = mi
 
@@ -104,11 +128,11 @@ def setup_jsonencoder():
                     return ['Column', obj.name, obj.table.name]
                 if isinstance(obj, Table):
                     return ['Table', obj.name]
-
+                if isinstance(obj, datetime):
+                    return str(obj)
                 try:
                     v = old_default(self, obj)
                 except:
-
                     assert False, type(obj)
                 return v
 

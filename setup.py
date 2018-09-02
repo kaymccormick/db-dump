@@ -3,11 +3,13 @@ from setuptools import setup, find_packages
 requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy', 'zope.interface',
             'zope.component', 'dataclasses-json', 'zope.sqlalchemy','python-datauri']
 
+packages = find_packages(exclude=['tests'])
+print(packages)
 setup(
     name='db_dump',
     author='Kay Mccormick',
     author_email='kay@kaymccormick.com',
-    packages=find_packages(),
+    packages=packages,
     install_requires=requires,
     entry_points={
         'plaster.loader_factory': [
