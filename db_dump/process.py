@@ -14,6 +14,7 @@ from sqlalchemy.orm import Mapper, RelationshipProperty
 
 from db_dump.info import ColumnInfo, TypeInfo, \
     MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo, TableInfo
+from db_dump.schema import MapperSchema
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,9 @@ def process_relationship(mapper_key, rel):
 
 def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
     logger.info("entering process_mapper")
+    schema = MapperSchema()
+    result = schema.dump(mapper)
+    logger.debug("result = %s", result)
     mapped_table = mapper.mapped_table  # type: Table
     mapper_key = mapper.local_table.key
 
