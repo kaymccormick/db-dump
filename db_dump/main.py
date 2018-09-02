@@ -1,4 +1,5 @@
 import importlib
+import json
 import sys
 
 import plaster
@@ -12,12 +13,14 @@ from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import Mapper
 
 from db_dump.args import argument_parser
-from db_dump.events import handle_after_create, handle_mapper_configured
+from db_dump.events import handle_after_create
 
 from zope.component.hooks import setSite, getSiteManager
 
 from db_dump import Site, register_components
-from db_dump.process import setup_jsonencoder, process_info, ProcessInfo, process_table
+from db_dump.process import setup_jsonencoder, process_table, ProcessStruct
+from db_dump.schema import ProcessSchema
+from marshmallow import pprint
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,15 @@ def main():
         pi = ProcessInfo.from_json()
         for mapper in pi.mappers.values():
             Mapper()
+
+    mappers_configured = []
+
+    def handle_mapper_configured(*args, **kwargs):
+        (mapper, entity) = args
+        mapper: Mapper
+        logger.debug("handle_mapper_configured: %s, %s", args, kwargs)
+        # all our other routine does is stuff the mapper into a dict
+        mappers_configured.append((mapper,entity,))
 
     listen(Mapper, 'mapper_configured', handle_mapper_configured)
     listen(Table, 'after_parent_attach', handle_parent_attach)
@@ -91,12 +103,20 @@ def main():
         struct = ProcessInfo.from_json(''.join(args.input_file.readlines()))
         logger.debug(struct)
 
+
+    schema = ProcessSchema()
+    ps = ProcessStruct()
+    for mapper, entity in mappers_configured:
+        ps.mappers.append(mapper)
+
     inspect1 = inspect(engine)  # type: Inspector
     for table in inspect1.get_table_names():
         table_o = Table(table, base.metadata)
-        process_info.tables[table_o.key] = process_table(table, table_o)
+        ps.tables.append(table_o)#process_table(table, table_o)
 
-    json_str = process_info.to_json()
+    json_str = json.dumps(schema.dump(ps))
+    if args.debug:
+        logger.debug("json_str = %s", json_str)
 
     if args.output_file:
         args.output_file.write(json_str)

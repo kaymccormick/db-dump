@@ -1,25 +1,23 @@
 import json
 import logging
-import os
 import platform
-import sys
 import sysconfig
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import MutableSequence, AnyStr, Mapping, Dict, NewType, Tuple, List
+from typing import MutableSequence, AnyStr, Dict, NewType, Tuple
 
 from dataclasses_json import DataClassJsonMixin
 from sqlalchemy import Column, Table
-from sqlalchemy.orm import Mapper, RelationshipProperty
+from sqlalchemy.orm import Mapper
 
 from db_dump.info import ColumnInfo, TypeInfo, \
     MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo, TableInfo
-from db_dump.schema import MapperSchema
+from db_dump.schema import MapperSchema, TableSchema
+from marshmallow import Schema
 
 logger = logging.getLogger(__name__)
 
 DateTime = NewType('DateTime', datetime)
-
 
 @dataclass
 class GenerationInfo(DataClassJsonMixin):
@@ -35,14 +33,16 @@ class GenerationMixin:
     generation: GenerationInfo=field(default_factory=GenerationInfo)
 
 
+@dataclass
+class ProcessStruct:
+    mappers: MutableSequence[Mapper]=field(default_factory=lambda: [])
+    tables: MutableSequence[Table]=field(default_factory=lambda: [])
+
 
 @dataclass
 class ProcessInfo(GenerationMixin, DataClassJsonMixin):
     mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
-    tables: Dict[AnyStr, TableInfo]=field(default_factory=lambda: {})
-
-
-process_info = ProcessInfo()
+    tables: MutableSequence[TableInfo]=field(default_factory=lambda: {})
 
 def process_relationship(mapper_key, rel):
     logger.info("entering process_relationship")
@@ -61,7 +61,8 @@ def process_relationship(mapper_key, rel):
         if rel.secondary:
             secondary = rel.secondary.name
         if rel.backref and not isinstance(rel.backref, str):
-            print(rel.backref)
+            pass
+            #print(rel.backref)
 
         i = RelationshipInfo(mapper_key=mapper_key,
                              local_remote_pairs=pairs, argument=[z.__module__, z.__name__],
@@ -72,11 +73,12 @@ def process_relationship(mapper_key, rel):
     return i
 
 
-def process_mapper(mapper: Mapper) -> 'MapperProcessorResult':
+def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':
     logger.info("entering process_mapper")
     schema = MapperSchema()
     result = schema.dump(mapper)
-    logger.debug("result = %s", result)
+    return result
+    print(result)
     mapped_table = mapper.mapped_table  # type: Table
     mapper_key = mapper.local_table.key
 
@@ -150,8 +152,8 @@ def setup_jsonencoder():
 # such as ResourceManager, ResourceOperation.
 
 
-def process_table(table_name: AnyStr, table: Table) -> TableInfo:
-    tables = process_info.tables
+def process_table(ps, table_name: AnyStr, table: Table) -> TableInfo:
+    tables = ps.tables
     assert table_name == table.name
     i = TableInfo(name=table.name, key=table.key,
                   columns=[], primary_key=[]

@@ -63,6 +63,7 @@ class OptionAction(argparse.Action):
 
 def argument_parser():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', '-d', action="store_true")
     parser.add_argument('--load', action="store_true")
     parser.add_argument('--path', action=AppendPath)
     parser.add_argument('--config-uri', '-c', help="Provide config_uri for configuration via plaster.",

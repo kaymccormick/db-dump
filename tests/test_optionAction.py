@@ -10,7 +10,6 @@ class TestOptionAction(TestCase):
         mock = MagicMock()
         mock2 = MagicMock()
         action(mock, mock2, 'x=y')
-        print(mock2.)
 
 
 
