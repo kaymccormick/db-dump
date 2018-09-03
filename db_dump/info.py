@@ -12,8 +12,13 @@ DateTime = NewType('DateTime', datetime)
 
 
 @dataclass
-class InfoBase(DataClassJsonMixin):
+class InfoBase:
     doc: AnyStr=None
+
+
+@dataclass
+class SchemaItemInfo(InfoBase):
+    __visit_name__: str=None
 
 
 class Mixin:
@@ -34,37 +39,52 @@ class GenerationInfo(DataClassJsonMixin):
 class KeyMixin:
     key: str=None
 
+
 @dataclass
 class CompiledMixin:
     compiled: str=None
+
 
 @dataclass
 class PairInfo(Mixin, InfoBase):
     table: AnyStr=None
     column: AnyStr=None
 
+
 @dataclass
 class LocalRemotePairInfo(Mixin, InfoBase):
     local: PairInfo=None
     remote: PairInfo=None
 
-@dataclass
-class RelationshipInfo(KeyMixin, Mixin, InfoBase):
-    argument: object=None
-    mapper_key: AnyStr=None
-    secondary: object=None
-    backref: AnyStr=None
-    local_remote_pairs: Sequence[LocalRemotePairInfo]=None
-    direction: AnyStr=None
-    pass
 
 @dataclass
-class ColumnInfo(KeyMixin, CompiledMixin, Mixin, InfoBase):
-    type_: 'TypeInfo'=None
+class InspectionAttrInfo(InfoBase):
+    is_mapper: bool=None
+    is_property: bool=None
+    is_attribute: bool=None
+
+
+@dataclass
+class StrategizedPropertyInfo(InspectionAttrInfo):
+    pass
+
+
+
+@dataclass
+class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
+    argument: object=None
+    #mapper_key: AnyStr=None
+    secondary: object=None
+    #backref: AnyStr=None
+    local_remote_pairs: object=None
+    direction: AnyStr=None
+
+
+@dataclass
+class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
+    type: 'TypeInfo'=None
     table: AnyStr=None
     name: AnyStr=None
-    pass
-
 
 
 @dataclass
@@ -73,22 +93,19 @@ class MapperInfo(Mixin):
     columns: object=None
     relationships: object=None
     local_table: object=None
+    entity: object=None
+
 
 @dataclass
 class TypeInfo(CompiledMixin, Mixin, InfoBase):
     pass
 
-@dataclass
-class SchemaItemInfo(InfoBase):
-    __visit_name__: str=None
 
 @dataclass
 class TableInfo(KeyMixin, Mixin, SchemaItemInfo):
     name: AnyStr=None
     primary_key: Sequence[AnyStr]=None
     columns: Sequence[ColumnInfo]=None
-
-    pass
 
 
 class MapperInfosMixin:

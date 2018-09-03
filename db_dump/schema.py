@@ -1,8 +1,10 @@
 import logging
-from datetime import date
 
-from db_dump.info import MapperInfo, ProcessInfo, TableInfo
-from marshmallow import Schema, fields, pprint, post_load
+from db_dump.columnschema import ColumnSchema, TableSchema
+from db_dump.fields import TypeField, ArgumentField
+from db_dump.pairfield import PairField
+from db_dump.info import MapperInfo, ProcessInfo, RelationshipInfo, PairInfo
+from marshmallow import Schema, fields, post_load
 
 logger = logging.getLogger(__name__)
 
@@ -17,33 +19,9 @@ class MapperPropertySchema(InspectionAttrSchema):
     pass
 
 
-class SchemaItemSchema(Schema):
-    visit_name = fields.String(attribute='__visit_name__')
-
-
 class TableColumnSpec(Schema):
     table = fields.String(load_from='table.key')
     column = fields.String(attribute='key')
-
-
-class TypeSchema(SchemaItemSchema):
-    #compiled = fields.Function(lambda type_: type_.compiled())
-    python_type = fields.Function(lambda type_: str(type_))
-
-
-class ColumnSchema(SchemaItemSchema):
-    key = fields.String()
-    name = fields.String()
-    type_ = fields.Nested(TypeSchema, attribute="type")
-
-
-class TableSchema(SchemaItemSchema):
-    key = fields.String()
-    name = fields.String()
-    columns = fields.Nested(ColumnSchema, many=True)
-    @post_load
-    def make_table_info(self, data):
-        return TableInfo(**data)
 
 
 class MappedProperty(InspectionAttrSchema):
@@ -53,10 +31,21 @@ class MappedProperty(InspectionAttrSchema):
 class StrategizedPropertySchema(InspectionAttrSchema):
     pass
 
+class PairSchema(Schema):
+    local = fields.Function(lambda obj: obj[0])
+    remote = fields.Function(lambda obj: obj[0])
+    @post_load
+    def make_pair(self, data):
+        return PairInfo(**data)
 
 class RelationshipSchema(StrategizedPropertySchema):
-    argument = fields.Function(lambda x: str(callable(x.argument) and x.argument() or x.argument))
+    argument = ArgumentField()
     secondary = fields.Nested(TableSchema, allow_none=True)
+    direction = fields.String()
+    local_remote_pairs = PairField(many=True)
+    @post_load
+    def make_relationship(self, data):
+        return RelationshipInfo(**data)
 
 
 class MapperSchema(Schema):
@@ -64,6 +53,7 @@ class MapperSchema(Schema):
     columns = fields.Nested(ColumnSchema, many=True)
     relationships = fields.Nested(RelationshipSchema, many=True)
     local_table = fields.Nested(TableSchema, required=True)
+    entity = TypeField()
 
     @post_load
     def make_mapper(self, data):

@@ -33,9 +33,9 @@ def handle_parent_attach(target, parent):
     logger.debug("handle_parent_attach: %s (%s), %s", target, type(target), parent)
 
 
-def main():
+def main(argv = sys.argv):
     parser = argument_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv[1:])
 
     settings = args.settings[args.config_uri] #plaster.get_settings(config_uri, args.section)
     if args.config:
