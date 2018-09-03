@@ -1,48 +1,14 @@
 import json
 import logging
-import platform
-import sysconfig
-from dataclasses import dataclass, field
-from datetime import datetime
-from typing import MutableSequence, AnyStr, Dict, NewType, Tuple
 
-from dataclasses_json import DataClassJsonMixin
-from sqlalchemy import Column, Table
-from sqlalchemy.orm import Mapper
+from sqlalchemy import Column
 
-from db_dump.info import ColumnInfo, TypeInfo, \
-    MapperInfo, LocalRemotePairInfo, PairInfo, RelationshipInfo, TableInfo
-from db_dump.schema import MapperSchema, TableSchema
-from marshmallow import Schema
+from db_dump.info import *
+from db_dump.schema import MapperSchema
 
 logger = logging.getLogger(__name__)
 
-DateTime = NewType('DateTime', datetime)
 
-@dataclass
-class GenerationInfo(DataClassJsonMixin):
-    created: DateTime=field(default_factory=lambda: datetime.now())
-    system_alias: Tuple[AnyStr, AnyStr, AnyStr]=field(default_factory=lambda: platform.system_alias(platform.system(), platform.release(), platform.version()))
-    python_version: AnyStr=field(default_factory=lambda: platform.python_version())
-    config_vars: Dict[AnyStr, object]=field(default_factory=sysconfig.get_config_vars)
-    #environ: Dict=field(default_factory=lambda: os.environ)
-
-
-@dataclass
-class GenerationMixin:
-    generation: GenerationInfo=field(default_factory=GenerationInfo)
-
-
-@dataclass
-class ProcessStruct:
-    mappers: MutableSequence[Mapper]=field(default_factory=lambda: [])
-    tables: MutableSequence[Table]=field(default_factory=lambda: [])
-
-
-@dataclass
-class ProcessInfo(GenerationMixin, DataClassJsonMixin):
-    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
-    tables: MutableSequence[TableInfo]=field(default_factory=lambda: {})
 
 def process_relationship(mapper_key, rel):
     logger.info("entering process_relationship")

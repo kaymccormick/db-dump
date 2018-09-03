@@ -1,9 +1,14 @@
+import platform
+import sysconfig
 from dataclasses import dataclass, field
-from typing import AnyStr, Sequence, MutableSequence, List, Tuple, Dict
+from datetime import datetime
+from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
 from dataclasses_json import DataClassJsonMixin
-from sqlalchemy import Integer
-from sqlalchemy.orm import RelationshipProperty
+from sqlalchemy import Table
+from sqlalchemy.orm import Mapper
+
+DateTime = NewType('DateTime', datetime)
 
 
 @dataclass
@@ -13,6 +18,17 @@ class InfoBase(DataClassJsonMixin):
 
 class Mixin:
     pass
+
+
+@dataclass
+class GenerationInfo(DataClassJsonMixin):
+    created: DateTime = field(default_factory=lambda: datetime.now())
+    system_alias: Tuple[AnyStr, AnyStr, AnyStr] = field(
+        default_factory=lambda: platform.system_alias(platform.system(), platform.release(), platform.version()))
+    python_version: AnyStr = field(default_factory=lambda: platform.python_version())
+    config_vars: Dict[AnyStr, object] = field(default_factory=sysconfig.get_config_vars)
+    # environ: Dict=field(default_factory=lambda: os.environ)
+
 
 @dataclass
 class KeyMixin:
@@ -52,25 +68,26 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, InfoBase):
 
 
 @dataclass
-class MapperInfo(Mixin, InfoBase):
-    mapper_key: AnyStr=None
-    primary_key: Sequence[Tuple[AnyStr, AnyStr]]= field(default=None)
-    columns: MutableSequence[ColumnInfo]=None
-    column_map: Dict[AnyStr, Integer]=None
-    relationships: MutableSequence[RelationshipInfo]=None
-    mapped_table: AnyStr=None
-    pass
+class MapperInfo(Mixin):
+    primary_key: object=None
+    columns: object=None
+    relationships: object=None
+    local_table: object=None
 
 @dataclass
 class TypeInfo(CompiledMixin, Mixin, InfoBase):
     pass
 
+@dataclass
+class SchemaItemInfo(InfoBase):
+    __visit_name__: str=None
 
 @dataclass
-class TableInfo(KeyMixin, Mixin, InfoBase):
+class TableInfo(KeyMixin, Mixin, SchemaItemInfo):
     name: AnyStr=None
     primary_key: Sequence[AnyStr]=None
     columns: Sequence[ColumnInfo]=None
+
     pass
 
 
@@ -85,3 +102,28 @@ class MapperInfosMixin:
 
     def set_mapper_info(self, mapper_key: AnyStr, mapper_info: MapperInfo) -> None:
         self.mapper_infos[mapper_key] = mapper_info
+
+
+@dataclass
+class ProcessInfo():
+    generation: object=None
+    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
+    tables: MutableSequence[TableInfo]=field(default_factory=lambda: {})
+
+
+@dataclass
+class GenerationMixin:
+    generation: GenerationInfo=field(default_factory=GenerationInfo)
+
+
+@dataclass
+class ProcessStruct(GenerationMixin):
+    mappers: MutableSequence[Mapper]=field(default_factory=lambda: [])
+    tables: MutableSequence[Table]=field(default_factory=lambda: [])
+
+
+def get_process_struct():
+    ps = ProcessStruct()
+    return ps
+
+
