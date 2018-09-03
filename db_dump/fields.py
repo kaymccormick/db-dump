@@ -9,6 +9,8 @@ logger = logging.getLogger(__name__)
 
 class TypeField(Field):
     def _serialize(self, value, attr, obj):
+        if value is None:
+            return None
         return '.'.join((value.__module__, value.__name__,))
     def _deserialize(self, value, attr, data):
         x = value.split('.')

@@ -61,7 +61,7 @@ class OptionAction(argparse.Action):
         getattr(namespace, self.dest)[key] = val
 
 
-def argument_parser():
+def argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', '-d', action="store_true")
     parser.add_argument('--load', action="store_true")
