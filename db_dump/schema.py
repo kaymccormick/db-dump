@@ -1,5 +1,6 @@
 import logging
 
+from db_dump.baseschema import SchemaItemSchema
 from db_dump.columnschema import ColumnSchema, TableSchema
 from db_dump.fields import TypeField, ArgumentField
 from db_dump.pairfield import PairField
@@ -7,6 +8,9 @@ from db_dump.info import MapperInfo, ProcessInfo, RelationshipInfo, TableColumnS
 from marshmallow import Schema, fields, post_load
 
 logger = logging.getLogger(__name__)
+
+
+
 
 class MapperPropertySchema(Schema):
     class_attribute = TypeField()

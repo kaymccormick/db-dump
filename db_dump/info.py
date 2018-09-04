@@ -5,17 +5,23 @@ from datetime import datetime
 from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
 from dataclasses_json import DataClassJsonMixin
+from zope.interface import implementer, Interface
 
 DateTime = NewType('DateTime', datetime)
 
+class IRelationshipInfo(Interface):
+    def get_argument():
+        pass
+
+
 @dataclass
 class InfoBase:
-    doc: AnyStr=None
+    doc: AnyStr = None
 
 
 @dataclass
 class SchemaItemInfo(InfoBase):
-    __visit_name__: str=None
+    __visit_name__: str = None
 
 
 class Mixin:
@@ -34,25 +40,25 @@ class GenerationInfo(DataClassJsonMixin):
 
 @dataclass
 class KeyMixin:
-    key: str=None
+    key: str = None
 
 
 @dataclass
 class CompiledMixin:
-    compiled: str=None
+    compiled: str = None
 
 
 @dataclass
 class LocalRemotePairInfo(Mixin, InfoBase):
-    local: 'TableColumnSpecInfo'=None
-    remote: 'TableColumnSpecInfo'=None
+    local: 'TableColumnSpecInfo' = None
+    remote: 'TableColumnSpecInfo' = None
 
 
 @dataclass
 class InspectionAttrInfo(InfoBase):
-    is_mapper: bool=None
-    is_property: bool=None
-    is_attribute: bool=None
+    is_mapper: bool = None
+    is_property: bool = None
+    is_attribute: bool = None
 
 
 @dataclass
@@ -60,32 +66,41 @@ class StrategizedPropertyInfo(InspectionAttrInfo):
     pass
 
 
-
+@implementer(IRelationshipInfo)
 @dataclass
 class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
-    argument: object=None
-    #mapper_key: AnyStr=None
-    secondary: object=None
-    #backref: AnyStr=None
-    local_remote_pairs: object=None
-    direction: AnyStr=None
-    mapper: 'MapperInfo'=None
+    argument: object = None
+    # mapper_key: AnyStr=None
+    secondary: object = None
+    # backref: AnyStr=None
+    local_remote_pairs: MutableSequence = None
+    direction: AnyStr = None
+    mapper: 'MapperInfo' = None
+
+    def get_argument(self):
+        return self.argument
+
+
+@dataclass
+class ForeignKeyInfo(Mixin, SchemaItemInfo):
+    column: 'ColumnInfo' = None
 
 
 @dataclass
 class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
-    type: 'TypeInfo'=None
-    table: AnyStr=None
-    name: AnyStr=None
+    type: 'TypeInfo' = None
+    table: AnyStr = None
+    name: AnyStr = None
+    foreign_keys: Sequence[ForeignKeyInfo] = None
 
 
 @dataclass
 class MapperInfo(Mixin):
-    primary_key: MutableSequence[Tuple[AnyStr, AnyStr]]=field(default_factory=lambda: {})
-    columns: object=None
-    relationships: object=None
-    local_table: 'TableInfo'=None
-    entity: object=None
+    primary_key: MutableSequence[Tuple[AnyStr, AnyStr]] = field(default_factory=lambda: {})
+    columns: object = None
+    relationships: object = None
+    local_table: 'TableInfo' = None
+    entity: object = None
 
 
 @dataclass
@@ -95,9 +110,9 @@ class TypeInfo(CompiledMixin, Mixin, InfoBase):
 
 @dataclass
 class TableInfo(KeyMixin, Mixin, SchemaItemInfo):
-    name: AnyStr=None
-    primary_key: Sequence[AnyStr]=None
-    columns: Sequence[ColumnInfo]=None
+    name: AnyStr = None
+    primary_key: Sequence[AnyStr] = None
+    columns: Sequence[ColumnInfo] = None
 
 
 class MapperInfosMixin:
@@ -115,20 +130,20 @@ class MapperInfosMixin:
 
 @dataclass
 class ProcessInfo():
-    generation: object=None
-    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
-    tables: MutableSequence[TableInfo]=field(default_factory=lambda: {})
+    generation: object = None
+    mappers: MutableSequence[MapperInfo] = field(default_factory=lambda: [])
+    tables: MutableSequence[TableInfo] = field(default_factory=lambda: {})
 
 
 @dataclass
 class GenerationMixin:
-    generation: GenerationInfo=field(default_factory=GenerationInfo)
+    generation: GenerationInfo = field(default_factory=GenerationInfo)
 
 
 @dataclass
 class ProcessStruct(GenerationMixin):
-    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
-    tables: MutableSequence[TableInfo]=field(default_factory=lambda: [])
+    mappers: MutableSequence[MapperInfo] = field(default_factory=lambda: [])
+    tables: MutableSequence[TableInfo] = field(default_factory=lambda: [])
 
 
 def get_process_struct():
@@ -138,6 +153,5 @@ def get_process_struct():
 
 @dataclass
 class TableColumnSpecInfo(InfoBase):
-    table: AnyStr=''
-    column: AnyStr=''
-
+    table: AnyStr = ''
+    column: AnyStr = ''

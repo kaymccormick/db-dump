@@ -155,7 +155,13 @@ def dump_and_load_mapper(mapper):
         v = m.load(json.loads(dumps))
         logger.debug("value = %s", v)
     except TypeError:
-        logger.critical("Can't reconstitute mapper: %s", sys.exc_info()[2])
+        logger.critical("Can't reconstitute mapper: %s", sys.exc_info()[1])
+        import traceback
+        traceback.print_tb(tb=sys.exc_info()[2], file=sys.stderr)
+        print(sys.exc_info()[1], file=sys.stderr)
+        #print("ZZZ", traceback.format_stack(), file=sys.stderr)
+
+
     except ValidationError as err:
         logger.critical("Can't reconstitute mapper: %s, %s", err.messages, dumps)
 

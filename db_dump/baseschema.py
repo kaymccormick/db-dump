@@ -1,6 +1,5 @@
 from marshmallow import Schema, fields
 
-
 class SchemaItemSchema(Schema):
     visit_name = fields.String(attribute='__visit_name__')
 
