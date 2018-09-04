@@ -5,11 +5,8 @@ from datetime import datetime
 from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
 from dataclasses_json import DataClassJsonMixin
-from sqlalchemy import Table
-from sqlalchemy.orm import Mapper
 
 DateTime = NewType('DateTime', datetime)
-
 
 @dataclass
 class InfoBase:
@@ -46,15 +43,9 @@ class CompiledMixin:
 
 
 @dataclass
-class PairInfo(Mixin, InfoBase):
-    table: AnyStr=None
-    column: AnyStr=None
-
-
-@dataclass
 class LocalRemotePairInfo(Mixin, InfoBase):
-    local: PairInfo=None
-    remote: PairInfo=None
+    local: 'TableColumnSpecInfo'=None
+    remote: 'TableColumnSpecInfo'=None
 
 
 @dataclass
@@ -78,6 +69,7 @@ class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
     #backref: AnyStr=None
     local_remote_pairs: object=None
     direction: AnyStr=None
+    mapper: 'MapperInfo'=None
 
 
 @dataclass
@@ -89,10 +81,10 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
 
 @dataclass
 class MapperInfo(Mixin):
-    primary_key: object=None
+    primary_key: MutableSequence[Tuple[AnyStr, AnyStr]]=field(default_factory=lambda: {})
     columns: object=None
     relationships: object=None
-    local_table: object=None
+    local_table: 'TableInfo'=None
     entity: object=None
 
 
@@ -135,12 +127,17 @@ class GenerationMixin:
 
 @dataclass
 class ProcessStruct(GenerationMixin):
-    mappers: MutableSequence[Mapper]=field(default_factory=lambda: [])
-    tables: MutableSequence[Table]=field(default_factory=lambda: [])
+    mappers: MutableSequence[MapperInfo]=field(default_factory=lambda: [])
+    tables: MutableSequence[TableInfo]=field(default_factory=lambda: [])
 
 
 def get_process_struct():
     ps = ProcessStruct()
     return ps
 
+
+@dataclass
+class TableColumnSpecInfo(InfoBase):
+    table: AnyStr=''
+    column: AnyStr=''
 

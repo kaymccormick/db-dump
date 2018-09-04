@@ -1,42 +1,44 @@
 import json
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, Table
 
 from db_dump.info import *
 from db_dump.schema import MapperSchema
+from sqlalchemy.orm import Mapper
 
 logger = logging.getLogger(__name__)
 
 
 
 def process_relationship(mapper_key, rel):
-    logger.info("entering process_relationship")
-    y = rel.argument
-    if callable(y):
-        z = y()
-    else:
-        z = y.entity
-
-    pairs = []
-    for pair in rel.local_remote_pairs:
-        pairs.append(LocalRemotePairInfo(local=PairInfo(table=pair[0].table.name, column=pair[0].name),
-                                         remote=PairInfo(table=pair[1].table.name, column=pair[1].name))
-                     )
-        secondary = None
-        if rel.secondary:
-            secondary = rel.secondary.name
-        if rel.backref and not isinstance(rel.backref, str):
-            pass
-            #print(rel.backref)
-
-        i = RelationshipInfo(mapper_key=mapper_key,
-                             local_remote_pairs=pairs, argument=[z.__module__, z.__name__],
-                             key=rel.key,
-                             secondary=secondary, backref=rel.backref,
-                             direction=rel.direction.name,
-                             )
-    return i
+    assert False
+    # logger.info("entering process_relationship")
+    # y = rel.argument
+    # if callable(y):
+    #     z = y()
+    # else:
+    #     z = y.entity
+    #
+    # pairs = []
+    # for pair in rel.local_remote_pairs:
+    #     pairs.append(LocalRemotePairInfo(local=PairInfo(table=pair[0].table.name, column=pair[0].name),
+    #                                      remote=PairInfo(table=pair[1].table.name, column=pair[1].name))
+    #                  )
+    #     secondary = None
+    #     if rel.secondary:
+    #         secondary = rel.secondary.name
+    #     if rel.backref and not isinstance(rel.backref, str):
+    #         pass
+    #         #print(rel.backref)
+    #
+    #     i = RelationshipInfo(mapper_key=mapper_key,
+    #                          local_remote_pairs=pairs, argument=[z.__module__, z.__name__],
+    #                          key=rel.key,
+    #                          secondary=secondary, backref=rel.backref,
+    #                          direction=rel.direction.name,
+    #                          )
+    # return i
 
 
 def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':

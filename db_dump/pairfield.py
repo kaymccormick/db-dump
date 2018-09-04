@@ -1,5 +1,5 @@
 from db_dump.columnschema import ColumnSchema
-from db_dump.info import ColumnInfo, LocalRemotePairInfo
+from db_dump.info import LocalRemotePairInfo, TableColumnSpecInfo
 from marshmallow.fields import Field, Nested
 
 
@@ -21,8 +21,8 @@ class PairField(Field):
         pairs = []
         for pair in value:
             pairs.append(LocalRemotePairInfo(
-                local=ColumnInfo(key=pair['local']['key'], table=pair['local']['table']['key']),
-                remote=ColumnInfo(key=pair['remote']['key'], table=pair['remote']['table']['key'])
+                local=TableColumnSpecInfo(table=pair['local']['table']['key'], column=pair['local']['key']),
+                remote=TableColumnSpecInfo(table=pair['remote']['table']['key'], column=pair['remote']['key']),
             ))
         return pairs
 

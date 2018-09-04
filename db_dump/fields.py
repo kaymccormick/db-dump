@@ -15,7 +15,11 @@ class TypeField(Field):
     def _deserialize(self, value, attr, data):
         x = value.split('.')
         name = x.pop(len(x) - 1)
-        module = importlib.import_module('.'.join(x))
+        try:
+            module = importlib.import_module('.'.join(x))
+        except ModuleNotFoundError:
+            return value
+
         v = module.__dict__[name]
         return v
 

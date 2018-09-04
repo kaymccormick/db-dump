@@ -1,6 +1,7 @@
 import importlib
 import json
 import sys
+from pprint import pprint
 
 from plaster import setup_logging
 from sqlalchemy import inspect, Table, engine_from_config
@@ -49,9 +50,10 @@ def main(argv = sys.argv):
     register_components(registry)
 
     if args.load:
-        pi = ProcessInfo.from_json()
-        for mapper in pi.mappers.values():
-            Mapper()
+        raise NotImplementedError()
+        # pi = ProcessInfo.from_json()
+        # for mapper in pi.mappers.values():
+        #     Mapper()
 
     mappers_configured = []
 
@@ -131,6 +133,7 @@ def main(argv = sys.argv):
     if args.stdout:
         print(json_str)
 
+
     # for k, v in mappers.items():
     #     v: MapperInfo
     #     print(v.to_json())
@@ -151,6 +154,8 @@ def dump_and_load_mapper(mapper):
         dumps = json.dumps(m.dump(mapper))
         v = m.load(json.loads(dumps))
         logger.debug("value = %s", v)
+    except TypeError:
+        logger.critical("Can't reconstitute mapper: %s", sys.exc_info()[2])
     except ValidationError as err:
         logger.critical("Can't reconstitute mapper: %s, %s", err.messages, dumps)
 
