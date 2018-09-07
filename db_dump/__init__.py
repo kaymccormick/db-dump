@@ -1,14 +1,12 @@
 import logging
-from typing import NewType, Mapping, AnyStr
+from typing import Mapping, AnyStr
 
-from sqlalchemy import Table
-from sqlalchemy.orm import Mapper
-from zope import component
 from zope.component import adapter
 from zope.interface import implementer, Interface, Attribute
 from zope.interface.registry import Components
 
 from db_dump.process import process_mapper
+from sqlalchemy.orm import Mapper
 
 logger = logging.getLogger(__name__)
 
