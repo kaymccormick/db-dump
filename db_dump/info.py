@@ -53,6 +53,10 @@ class LocalRemotePairInfo(Mixin, InfoBase):
     local: 'TableColumnSpecInfo' = None
     remote: 'TableColumnSpecInfo' = None
 
+    def __iter__(self):
+        yield self.local
+        yield self.remote
+
 
 @dataclass
 class InspectionAttrInfo(InfoBase):
@@ -96,9 +100,9 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
 
 @dataclass
 class MapperInfo(Mixin):
-    primary_key: MutableSequence[Tuple[AnyStr, AnyStr]] = field(default_factory=lambda: {})
-    columns: object = None
-    relationships: object = None
+    primary_key: MutableSequence['TableColumnSpecInfo'] = field(default_factory=lambda: [])
+    columns: Sequence[ColumnInfo] = field(default_factory=lambda: [])
+    relationships: Sequence[RelationshipInfo] = field(default_factory=lambda: [])
     local_table: 'TableInfo' = None
     entity: object = None
 
