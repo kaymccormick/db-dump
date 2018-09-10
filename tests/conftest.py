@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from db_dump.schema import MapperSchema, TableColumnSpecSchema
+from db_dump import TableColumnSpecSchema, MapperSchema
 
 
 @pytest.fixture

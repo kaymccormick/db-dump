@@ -1,3 +1,4 @@
+from __future__ import annotations
 import platform
 import sysconfig
 from dataclasses import dataclass, field
@@ -9,9 +10,9 @@ from zope.interface import implementer, Interface
 
 DateTime = NewType('DateTime', datetime)
 
+
 class IRelationshipInfo(Interface):
-    def get_argument():
-        pass
+    pass
 
 
 @dataclass
@@ -50,8 +51,8 @@ class CompiledMixin:
 
 @dataclass
 class LocalRemotePairInfo(Mixin, InfoBase):
-    local: 'TableColumnSpecInfo' = None
-    remote: 'TableColumnSpecInfo' = None
+    local: TableColumnSpecInfo = None
+    remote: TableColumnSpecInfo = None
 
     def __iter__(self):
         yield self.local
@@ -79,7 +80,7 @@ class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
     # backref: AnyStr=None
     local_remote_pairs: MutableSequence = None
     direction: AnyStr = None
-    mapper: 'MapperInfo' = None
+    mapper: MapperInfo = None
 
     def get_argument(self):
         return self.argument
@@ -98,12 +99,13 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
     foreign_keys: Sequence[ForeignKeyInfo] = None
 
 
+# relative mirror of Mapper for those attributes we care about
 @dataclass
 class MapperInfo(Mixin):
-    primary_key: MutableSequence['TableColumnSpecInfo'] = field(default_factory=lambda: [])
+    primary_key: MutableSequence[TableColumnSpecInfo] = field(default_factory=lambda: [])
     columns: Sequence[ColumnInfo] = field(default_factory=lambda: [])
     relationships: Sequence[RelationshipInfo] = field(default_factory=lambda: [])
-    local_table: 'TableInfo' = None
+    local_table: TableInfo = None
     entity: object = None
 
 
@@ -159,3 +161,4 @@ def get_process_struct():
 class TableColumnSpecInfo(InfoBase):
     table: AnyStr = ''
     column: AnyStr = ''
+    type: TypeInfo=None

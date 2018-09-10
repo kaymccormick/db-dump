@@ -1,7 +1,7 @@
 import json
 import logging
 
-from db_dump.schema import RelationshipSchema
+from db_dump import RelationshipSchema
 
 logger = logging.getLogger(__name__)
 

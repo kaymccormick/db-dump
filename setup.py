@@ -13,7 +13,8 @@ setup(
     install_requires=requires,
     entry_points={
         'plaster.loader_factory': [
-            'data = db_dump.loader:DataLoader'
+            'data = db_dump.loader:DataLoader',
+            'zc+tcp = db_dump.loader:ZooKeeperLoader'
         ],
         'console_scripts': [
             'db_dump = db_dump.main:main',
