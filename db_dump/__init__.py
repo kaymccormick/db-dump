@@ -81,6 +81,7 @@ def register_components(components: Components):
 class SchemaItemSchema(Schema):
     visit_name = fields.String(attribute='__visit_name__')
 
+
 #
 # class TypeSchema(SchemaItemSchema):
 #     #compiled = fields.Function(lambda type_: type_.compiled())
@@ -97,12 +98,13 @@ class PairField(Field):
 
     def _serialize(self, value, attr, obj):
         x = []
-        for local,remote in value:
-            x.append({ 'local': self._column_schema.dump(local),
-                     'remote': self._column_schema.dump(remote) })
+        for local, remote in value:
+            x.append({'local': self._column_schema.dump(local),
+                      'remote': self._column_schema.dump(remote)})
 
-            #x = self._column_field.__serialize(local, None, value)
+            # x = self._column_field.__serialize(local, None, value)
         return x
+
     def _deserialize(self, value, attr, data):
         pairs = []
         for pair in value:
@@ -111,6 +113,7 @@ class PairField(Field):
                 remote=TableColumnSpecInfo(table=pair['remote']['table']['key'], column=pair['remote']['key']),
             ))
         return pairs
+
 
 class ForeignKeySchema(SchemaItemSchema):
     column = fields.Nested('ColumnSchema', only=['key', 'table'])  # do we need many = True?
@@ -147,7 +150,6 @@ class InspectionAttrSchema(Schema):
     is_property = fields.Boolean()
     is_attribute = fields.Boolean()
     pass
-
 
 
 class TableColumnSpecSchema(Schema):
@@ -229,8 +231,6 @@ def get_process_schema():
 def get_mapper_schema():
     m = MapperSchema()
     return m
-
-
 
 
 def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':
