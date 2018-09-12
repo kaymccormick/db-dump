@@ -49,14 +49,6 @@ class CompiledMixin:
     compiled: str = None
 
 
-@dataclass
-class LocalRemotePairInfo(Mixin, InfoBase):
-    local: TableColumnSpecInfo = None
-    remote: TableColumnSpecInfo = None
-
-    def __iter__(self):
-        yield self.local
-        yield self.remote
 
 
 @dataclass
@@ -162,3 +154,12 @@ class TableColumnSpecInfo(InfoBase):
     table: AnyStr = ''
     column: AnyStr = ''
     type: TypeInfo=None
+
+@dataclass
+class LocalRemotePairInfo(Mixin, InfoBase):
+    local: TableColumnSpecInfo = None
+    remote: TableColumnSpecInfo = None
+
+    def __iter__(self):
+        yield self.local
+        yield self.remote
