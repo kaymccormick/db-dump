@@ -9,10 +9,18 @@ logger = logging.getLogger(__name__)
 
 class TypeField(Field):
     def _serialize(self, value, attr, obj):
+        logger.critical("%s", self.name)
         if value is None:
             return None
-        return '.'.join((value.__module__, value.__name__,))
+        t = type(value)
+        s = getattr(t, '_serialize', None)
+        if s:
+            return s(self, value, attr, obj)
+        return super()._serialize(value, t, obj)
+
     def _deserialize(self, value, attr, data):
+        if isinstance(value, object):
+            return value
         x = value.split('.')
         name = x.pop(len(x) - 1)
         package = x.pop(0)
