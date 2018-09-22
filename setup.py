@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy', 'zope.interface',
-            'zope.component', 'dataclasses-json', 'zope.sqlalchemy','python-datauri', 'marshmallow']
+            'zope.component', 'zope.sqlalchemy','python-datauri', 'marshmallow']
 
 packages = find_packages(exclude=['tests'])
 print(packages)

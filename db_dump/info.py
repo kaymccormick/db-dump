@@ -5,7 +5,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
-from dataclasses_json import DataClassJsonMixin
 from zope.interface import implementer, Interface
 
 DateTime = NewType('DateTime', datetime)
@@ -30,7 +29,7 @@ class Mixin:
 
 
 @dataclass
-class GenerationInfo(DataClassJsonMixin):
+class GenerationInfo:
     created: DateTime = field(default_factory=lambda: datetime.now())
     system_alias: Tuple[AnyStr, AnyStr, AnyStr] = field(
         default_factory=lambda: platform.system_alias(platform.system(), platform.release(), platform.version()))
