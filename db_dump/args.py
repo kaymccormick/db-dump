@@ -7,9 +7,6 @@ import plaster
 logger = logging.getLogger(__name__)
 
 
-
-
-
 class ConfigAction(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, **kwargs):
         if nargs is not None:
@@ -65,7 +62,7 @@ class OptionAction(argparse.Action):
 
 
 def argument_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--debug', '-d', action="store_true")
     parser.add_argument('--load', action="store_true")
     parser.add_argument('--path', action=AppendPath)

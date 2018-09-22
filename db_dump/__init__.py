@@ -31,7 +31,7 @@ class IMapper(Interface):
 class IProcessor(Interface):
     pass
 
-
+# uncovered
 class Site:
     def __init__(self):
         self.registry = Components('components')
@@ -50,6 +50,7 @@ class TableImpl:
         pass
 
 
+# uncovered
 @implementer(IMapper)
 class MyMapper:
     def __init__(self, mapper: Mapper) -> None:
@@ -60,6 +61,7 @@ class MyMapper:
         return self._mapper
 
 
+#uncovered
 @adapter(ITable)
 @implementer(IProcessor)
 class TableProcessor:
@@ -69,7 +71,7 @@ class TableProcessor:
     def process(self):
         return {}
 
-
+#uncovered
 def register_components(components: Components):
     #    logger.critical("REGISTERING COMPONENTS")
     #    logger.info("adapted = %s", component.adaptedBy(MapperProcessor))
@@ -87,7 +89,7 @@ class SchemaItemSchema(Schema):
 #     #compiled = fields.Function(lambda type_: type_.compiled())
 #     python_type = fields.Function(lambda type_: str(type_))
 class TypeSchema(Schema):
-    python_type = fields.String()
+    python_type = TypeField()
 
 
 class PairField(Field):
@@ -118,6 +120,7 @@ class PairField(Field):
 class ForeignKeySchema(SchemaItemSchema):
     column = fields.Nested('ColumnSchema', only=['key', 'table'])  # do we need many = True?
 
+    #uncovered
     @post_load
     def make_fk(self, data):
         return ForeignKeyInfo(**data)
@@ -218,21 +221,24 @@ class ProcessSchema(Schema):
     mappers = fields.Nested(MapperSchema, many=True)
     tables = fields.Nested(TableSchema, many=True)
 
+    #uncoverd
     @post_load
     def make_process_info(self, data):
         return ProcessInfo(**data);
 
 
+#uncovered
 def get_process_schema():
     schema = ProcessSchema()
     return schema
 
 
+#uncovered
 def get_mapper_schema():
     m = MapperSchema()
     return m
 
-
+#uncovered
 def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':
     logger.info("entering process_mapper")
     schema = MapperSchema()
@@ -279,7 +285,7 @@ def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':
     return mi
     # self.info.mappers[mapper_key] = mi
 
-
+#uncovered
 def setup_jsonencoder():
     logger.info("entering setup_jsonencoder")
 
@@ -295,12 +301,12 @@ def setup_jsonencoder():
                     return ['Column', obj.name, obj.table.name]
                 if isinstance(obj, Table):
                     return ['Table', obj.name]
-                if isinstance(obj, datetime):
+                if isinstance(obj, datetime.datetime):
                     return str(obj)
                 try:
                     v = old_default(self, obj)
                 except:
-                    assert False, type(obj)
+                    assert False, "%r (%s)" % (obj, type(obj))
                 return v
 
         json.JSONEncoder.default = MyEncoder.default
@@ -328,7 +334,7 @@ def process_table(ps, table_name: AnyStr, table: Table) -> TableInfo:
 
     return i
 
-
+#uncovered
 @adapter(IMapper)
 @implementer(IProcessor)
 class MapperProcessor:

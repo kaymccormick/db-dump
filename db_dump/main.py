@@ -40,25 +40,29 @@ def main(argv=sys.argv):
     parser = argument_parser()
     args = parser.parse_args(argv[1:])
 
-    settings = args.settings[args.config_uri]  # plaster.get_settings(config_uri, args.section)
+    if not hasattr(args, 'settings'):
+        settings = {}
+    else:
+        settings = args.settings[args.config_uri]  # plaster.get_settings(config_uri, args.section)
+
     if args.config:
         settings = {**settings, **args.config}
-
-    # DONT LOG BEFORE HERE
-    setup_logging(args.config_uri)
-
-    if args.copy_config:
-        src = args.config_uri
-        dst = args.dest_config_uri
-        loader = plaster.get_loader(dst, protocols=('zc', 'zc+tcp'))  # ZooKeeperLoader
-        for section in plaster.get_sections(src):
-            config = plaster.get_settings(src, section)
-            zk = loader.zk
-            section_p = loader.path.joinpath(section)
-            for k, v in config.items():
-                config_p = section_p.joinpath(k)
-                zk.ensure_path(str(config_p))
-                zk.set(str(config_p), bytes(v, encoding='utf-8'))
+    #
+    # # DONT LOG BEFORE HERE
+    # setup_logging(args.config_uri)
+    #
+    # if args.copy_config:
+    #     src = args.config_uri
+    #     dst = args.dest_config_uri
+    #     loader = plaster.get_loader(dst, protocols=('zc', 'zc+tcp'))  # ZooKeeperLoader
+    #     for section in plaster.get_sections(src):
+    #         config = plaster.get_settings(src, section)
+    #         zk = loader.zk
+    #         section_p = loader.path.joinpath(section)
+    #         for k, v in config.items():
+    #             config_p = section_p.joinpath(k)
+    #             zk.ensure_path(str(config_p))
+    #             zk.set(str(config_p), bytes(v, encoding='utf-8'))
 
         # for k in ('logger', 'handler', 'formatter'):
         #     _config[k] = dict()
