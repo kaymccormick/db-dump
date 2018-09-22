@@ -9,6 +9,7 @@ setup(
     name='db_dump',
     author='Kay Mccormick',
     author_email='kay@kaymccormick.com',
+    version='0.1',
     packages=packages,
     install_requires=requires,
     entry_points={
