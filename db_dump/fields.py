@@ -4,6 +4,7 @@ import logging
 from sqlalchemy.orm import Mapper
 
 from marshmallow.fields import Field
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,11 @@ class TypeField(Field):
         logger.critical("serializing %r", value)
         if value is None:
             return None
-        return '%s.%s' % (value.__module__, value.__name__)
+        try:
+            s = '%s.%s' % (value.__module__, value.__name__)
+        except:
+            s = repr(sys.exc_info()[1])
+        return s
         #
         #
         # s = getattr(t, '_serialize', None)
@@ -82,4 +87,7 @@ class ArgumentField(TypeField):
         except TypeError:
             pass
 
-        return '.'.join((value.__module__, value.__name__,))
+        try:
+            return '.'.join((value.__module__, value.__name__,))
+        except Exception as ex:
+            return str(ex)
