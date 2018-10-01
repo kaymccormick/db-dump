@@ -14,8 +14,8 @@ from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecI
 
 from marshmallow import fields, post_load, Schema
 from marshmallow.fields import Field, Nested
-from sqlalchemy import Column, Table
-from sqlalchemy.orm import Mapper
+
+
 
 logger = logging.getLogger(__name__)
 
@@ -49,16 +49,6 @@ class TableImpl:
     def __init__(self) -> None:
         pass
 
-
-# uncovered
-@implementer(IMapper)
-class MyMapper:
-    def __init__(self, mapper: Mapper) -> None:
-        logger.info("inMyMapper init I am a mapper! %s", mapper)
-        self._mapper = mapper
-
-    def mapper(self):
-        return self._mapper
 
 
 #uncovered
@@ -239,7 +229,7 @@ def get_mapper_schema():
     return m
 
 #uncovered
-def process_mapper(ps, mapper: Mapper) -> 'MapperProcessorResult':
+def process_mapper(ps, mapper: 'Mapper') -> 'MapperProcessorResult':
     logger.info("entering process_mapper")
     schema = MapperSchema()
     result = schema.dump(mapper)
@@ -314,7 +304,7 @@ def setup_jsonencoder():
     return do_setup
 
 
-def process_table(ps, table_name: AnyStr, table: Table) -> TableInfo:
+def process_table(ps, table_name: AnyStr, table: 'Table') -> TableInfo:
     tables = ps.tables
     assert table_name == table.name
     i = TableInfo(name=table.name, key=table.key,

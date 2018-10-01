@@ -1,7 +1,7 @@
 import importlib
 import logging
 
-from sqlalchemy.orm import Mapper
+
 
 from marshmallow.fields import Field
 import sys
