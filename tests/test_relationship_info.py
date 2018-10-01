@@ -22,7 +22,7 @@ er_json = """{
               }
             }
           ],
-          "argument": "email_mgmt_app.model.email_mgmt.Person",
+          "argument": "heptet_app.model.email_mgmt.Person",
           "key": "owner",
           "is_attribute": false,
           "direction": "MANYTOONE",

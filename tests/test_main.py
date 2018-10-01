@@ -18,7 +18,7 @@ def test_mapper_schema_load(mapper_schema):
           "column": "id"
         }
       ],
-      "entity": "email_mgmt_app.model.email_mgmt.PublicKey",
+      "entity": "heptet_app.model.email_mgmt.PublicKey",
       "columns": [
         {
           "visit_name": "column",
@@ -60,7 +60,7 @@ def test_mapper_schema_load(mapper_schema):
       "relationships": [
         {
           "is_property": true,
-          "argument": "email_mgmt_app.model.email_mgmt.Person",
+          "argument": "heptet_app.model.email_mgmt.Person",
           "is_attribute": false,
           "is_mapper": false,
           "secondary": null,
@@ -132,7 +132,7 @@ def test_mapper_schema_load(mapper_schema):
     pkey_col = 'id'
 
     data = {'primary_key': [{'table': table_name, 'column': pkey_col}],
-            'entity': 'email_mgmt_app.model.email_mgmt.PublicKey',
+            'entity': 'heptet_app.model.email_mgmt.PublicKey',
             'columns': [{'visit_name': 'column', 'table': {'key': table_name}, 'name': pkey_col,
                          'type_': {'visit_name': 'integer', 'python_type': 'INTEGER'}, 'key': pkey_col},
                         {'visit_name': 'column', 'table': {'key': 'public_key'}, 'name': 'owner_id',
@@ -140,7 +140,7 @@ def test_mapper_schema_load(mapper_schema):
                         {'visit_name': 'column', 'table': {'key': 'public_key'}, 'name': 'public_key_text',
                          'type_': {'visit_name': 'string', 'python_type': 'VARCHAR'}, 'key': 'public_key_text'}],
             'relationships': [
-                {'is_property': True, 'argument': 'email_mgmt_app.model.email_mgmt.Person', 'is_attribute': False,
+                {'is_property': True, 'argument': 'heptet_app.model.email_mgmt.Person', 'is_attribute': False,
                  'is_mapper': False, 'secondary': None, 'local_remote_pairs': [
                     {'local': {'table': {'key': 'public_key'}, 'key': 'owner_id'},
                      'remote': {'table': {'key': 'person'}, 'key': 'id'}}], 'direction': 'MANYTOONE'}], 'local_table': {
