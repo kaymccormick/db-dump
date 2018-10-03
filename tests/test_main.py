@@ -4,7 +4,7 @@ from db_dump.info import MapperInfo, TableColumnSpecInfo
 def test_table_column_spec_schema_load(table_column_spec_schema):
     my_table = 'test1'
     my_column = 'test1_id'
-    data = {'table': my_table, 'column': my_column }
+    data = {'table': my_table, 'column': my_column}
     result = table_column_spec_schema.load(data)
     assert isinstance(result, TableColumnSpecInfo)
 
@@ -157,6 +157,5 @@ def test_mapper_schema_load(mapper_schema):
     assert len(result.primary_key) == 1
     assert result.primary_key[0].table == table_name
     assert result.primary_key[0].column == pkey_col
-
 
     print(result)

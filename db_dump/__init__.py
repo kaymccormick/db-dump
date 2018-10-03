@@ -7,7 +7,7 @@ from typing import Mapping, AnyStr
 from marshmallow import fields, post_load, Schema
 from marshmallow.fields import Field, Nested
 
-from db_dump.fields import TypeField, ArgumentField
+from db_dump.dbd_fields import TypeField, ArgumentField
 from db_dump.info import ColumnInfo, TableInfo
 from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecInfo, RelationshipInfo, MapperInfo, \
     ProcessInfo, LocalRemotePairInfo
@@ -157,6 +157,7 @@ class GenerationSchema(Schema):
     config_vars = fields.Nested(ConfigVarsSchema)
 
 
+# get rid of lame name
 class ProcessSchema(Schema):
     generation = fields.Nested(GenerationSchema)
     mappers = fields.Nested(MapperSchema, many=True)

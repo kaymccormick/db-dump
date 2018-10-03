@@ -1,29 +1,20 @@
 import importlib
 import json
-import re
-import sys
-from pathlib import PurePosixPath
-from pprint import pprint
-
-import plaster
-from kazoo.client import KazooClient
-from plaster import setup_logging
-from sqlalchemy import inspect, Table, engine_from_config
 import logging
+import sys
+from sqlalchemy import inspect, Table, engine_from_config
 
+from marshmallow import ValidationError
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.event import listen
 from sqlalchemy.ext.declarative import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import Mapper
-
-from db_dump.args import argument_parser
-from db_dump.events import handle_after_create
-
 from zope.component.hooks import setSite, getSiteManager
 
 from db_dump import Site, register_components, get_process_schema, get_mapper_schema, setup_jsonencoder
-from db_dump.info import get_process_struct, GenerationInfo
-from marshmallow import ValidationError
+from db_dump.args import argument_parser
+from db_dump.events import handle_after_create
+from db_dump.info import get_process_struct, GenerationInfo, ProcessInfo
 
 logger = logging.getLogger(__name__)
 
@@ -47,76 +38,10 @@ def main(argv=sys.argv):
 
     if args.config:
         settings = {**settings, **args.config}
-    #
-    # # DONT LOG BEFORE HERE
+
     # setup_logging(args.config_uri)
-    #
-    # if args.copy_config:
-    #     src = args.config_uri
-    #     dst = args.dest_config_uri
-    #     loader = plaster.get_loader(dst, protocols=('zc', 'zc+tcp'))  # ZooKeeperLoader
-    #     for section in plaster.get_sections(src):
-    #         config = plaster.get_settings(src, section)
-    #         zk = loader.zk
-    #         section_p = loader.path.joinpath(section)
-    #         for k, v in config.items():
-    #             config_p = section_p.joinpath(k)
-    #             zk.ensure_path(str(config_p))
-    #             zk.set(str(config_p), bytes(v, encoding='utf-8'))
-
-        # for k in ('logger', 'handler', 'formatter'):
-        #     _config[k] = dict()
-        #     key = k + 's'
-        #     p = loader.path # type: PurePosixPath
-        #     sp = p.joinpath(key)
-        #     zk = loader.zk
-        #     zk.ensure_path(str(sp))
-        #     config = plaster.get_settings(uri, key)
-        #     for k, v in config.items():
-        #         sp2 = sp.joinpath(k)
-        #         zk.ensure_path(str(sp2))
-        #         zk.set(str(sp2), bytes(v, encoding='utf-8'))
-        #
-        #     for x in re.split(', *', config['keys']):
-        #         logger.critical("x = %s", x)
-        #         key2 = "%s_%s" % (k, x)
-        #         lconfig = plaster.get_settings(uri, key2)
-        #         sp2 = sp.joinpath(key2)
-        #         for k, v in lconfig.items():
-        #             sp3 = sp2.joinpath(k)
-        #             zk.ensure_path(str(sp3))
-        #             zk.set(str(sp3), bytes(v, encoding='utf-8'))
-        #
-        #         #                _config[k][x] = lconfig
-        #         zk = loader.zk # type: KazooClient
-        #         px = loader.path # type: PurePosixPath
-        #         root = px.joinpath(key).joinpath(key2)
-        #
-        #         for k, v in lconfig.items():
-        #
-        #             joinpath = root.joinpath(k)
-        #             zk.ensure_path(str(joinpath))
-        #             zk.set(str(joinpath), bytes(v, encoding='utf-8'))
-        #
-
-
-
-
-
-
-
-        # for section in plaster.get_sections(uri):
-        #     settings = plaster.get_settings(uri, section)
-
-    set_site()
-    registry = getSiteManager()
-    register_components(registry)
-
     if args.load:
         raise NotImplementedError()
-        # pi = ProcessInfo.from_json()
-        # for mapper in pi.mappers.values():
-        #     Mapper()
 
     mappers_configured = []
 
