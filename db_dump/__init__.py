@@ -3,10 +3,6 @@ import json
 import logging
 from typing import Mapping, AnyStr
 
-from zope.component import adapter
-from zope.interface import Interface, implementer
-from zope.interface.registry import Components
-
 from db_dump.info import ColumnInfo, TableInfo
 from db_dump.fields import TypeField, ArgumentField
 from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecInfo, RelationshipInfo, MapperInfo, \
@@ -14,58 +10,13 @@ from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecI
 
 from marshmallow import fields, post_load, Schema
 from marshmallow.fields import Field, Nested
-
-
+from sqlalchemy import Column, Table
 
 logger = logging.getLogger(__name__)
 
 MapperResultKey = AnyStr
 MapperResultValue = Mapping[AnyStr, dict]
 MapperProcessorResult = Mapping[MapperResultKey, MapperResultValue]
-
-
-class IMapper(Interface):
-    pass
-
-
-class IProcessor(Interface):
-    pass
-
-# uncovered
-class Site:
-    def __init__(self):
-        self.registry = Components('components')
-
-    def getSiteManager(self):
-        return self.registry
-
-
-class ITable(Interface):
-    pass
-
-
-@implementer(ITable)
-class TableImpl:
-    def __init__(self) -> None:
-        pass
-
-
-
-#uncovered
-@adapter(ITable)
-@implementer(IProcessor)
-class TableProcessor:
-    def __init__(self, table):
-        self.table = table
-
-    def process(self):
-        return {}
-
-#uncovered
-def register_components(components: Components):
-    #    logger.critical("REGISTERING COMPONENTS")
-    #    logger.info("adapted = %s", component.adaptedBy(MapperProcessor))
-    components.registerAdapter(MapperProcessor)
 
 
 #    result = IProcessor(MyMapper(None)).process()
@@ -324,12 +275,3 @@ def process_table(ps, table_name: AnyStr, table: 'Table') -> TableInfo:
 
     return i
 
-#uncovered
-@adapter(IMapper)
-@implementer(IProcessor)
-class MapperProcessor:
-    def __init__(self, imapper: IMapper) -> None:
-        self.imapper = imapper
-
-    def process(self):
-        return process_mapper(self.imapper.mapper())
