@@ -1,16 +1,16 @@
 import datetime
 import json
 import logging
+from sqlalchemy import Column, Table
 from typing import Mapping, AnyStr
-
-from db_dump.info import ColumnInfo, TableInfo
-from db_dump.fields import TypeField, ArgumentField
-from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecInfo, RelationshipInfo, MapperInfo, \
-    ProcessInfo, LocalRemotePairInfo
 
 from marshmallow import fields, post_load, Schema
 from marshmallow.fields import Field, Nested
-from sqlalchemy import Column, Table
+
+from db_dump.fields import TypeField, ArgumentField
+from db_dump.info import ColumnInfo, TableInfo
+from db_dump.info import ForeignKeyInfo, ColumnInfo, TableInfo, TableColumnSpecInfo, RelationshipInfo, MapperInfo, \
+    ProcessInfo, LocalRemotePairInfo
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class PairField(Field):
 class ForeignKeySchema(SchemaItemSchema):
     column = fields.Nested('ColumnSchema', only=['key', 'table'])  # do we need many = True?
 
-    #uncovered
+    # uncovered
     @post_load
     def make_fk(self, data):
         return ForeignKeyInfo(**data)
@@ -162,24 +162,25 @@ class ProcessSchema(Schema):
     mappers = fields.Nested(MapperSchema, many=True)
     tables = fields.Nested(TableSchema, many=True)
 
-    #uncoverd
+    # uncoverd
     @post_load
     def make_process_info(self, data):
         return ProcessInfo(**data);
 
 
-#uncovered
+# uncovered
 def get_process_schema():
     schema = ProcessSchema()
     return schema
 
 
-#uncovered
+# uncovered
 def get_mapper_schema():
     m = MapperSchema()
     return m
 
-#uncovered
+
+# uncovered
 def process_mapper(ps, mapper: 'Mapper') -> 'MapperProcessorResult':
     logger.info("entering process_mapper")
     schema = MapperSchema()
@@ -226,7 +227,8 @@ def process_mapper(ps, mapper: 'Mapper') -> 'MapperProcessorResult':
     return mi
     # self.info.mappers[mapper_key] = mi
 
-#uncovered
+
+# uncovered
 def setup_jsonencoder():
     logger.info("entering setup_jsonencoder")
 
@@ -274,4 +276,3 @@ def process_table(ps, table_name: AnyStr, table: 'Table') -> TableInfo:
         i.columns.append(_i)
 
     return i
-

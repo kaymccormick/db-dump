@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 
 requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy',
 
+
             'python-datauri', 'marshmallow']
 
 packages = find_packages(exclude=['tests'])
