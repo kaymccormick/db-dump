@@ -5,6 +5,7 @@ import logging
 
 from marshmallow.fields import Field
 import sys
+from sqlalchemy.orm import Mapper
 
 logger = logging.getLogger(__name__)
 

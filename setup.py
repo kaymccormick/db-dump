@@ -1,9 +1,6 @@
 from setuptools import setup, find_packages
 
-requires = ['SqlAlchemy', 'plaster', 'psycopg2', 'plaster_pastedeploy',
-
-
-            'python-datauri', 'marshmallow']
+requires = ['SqlAlchemy', 'plaster', 'plaster_pastedeploy', 'python-datauri', 'marshmallow']
 
 packages = find_packages(exclude=['tests'])
 print(packages)
@@ -17,7 +14,6 @@ setup(
     entry_points={
         'plaster.loader_factory': [
             'data = db_dump.loader:DataLoader',
-            'zc+tcp = db_dump.loader:ZooKeeperLoader'
         ],
         'console_scripts': [
             'db_dump = db_dump.main:main',

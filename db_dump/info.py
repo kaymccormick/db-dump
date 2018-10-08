@@ -5,13 +5,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
-from zope.interface import implementer, Interface
 
 DateTime = NewType('DateTime', datetime)
 
-
-class IRelationshipInfo(Interface):
-    pass
 
 
 @dataclass
@@ -62,7 +58,7 @@ class StrategizedPropertyInfo(InspectionAttrInfo):
     pass
 
 
-@implementer(IRelationshipInfo)
+
 @dataclass
 class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
     argument: object = None
