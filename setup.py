@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-requires = ['SqlAlchemy', 'plaster', 'plaster_pastedeploy', 'python-datauri', 'marshmallow']
+requires = ['SqlAlchemy', 'plaster', 'plaster_pastedeploy', 'python-datauri']
 
 packages = find_packages(exclude=['tests'])
 print(packages)
