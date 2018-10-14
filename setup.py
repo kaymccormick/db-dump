@@ -5,7 +5,7 @@ requires = ['SqlAlchemy', 'plaster', 'plaster_pastedeploy', 'python-datauri']
 packages = find_packages(exclude=['tests'])
 print(packages)
 setup(
-    name='db_dump',
+    name='db-dump',
     author='Kay Mccormick',
     author_email='kay@kaymccormick.com',
     version='0.1',
