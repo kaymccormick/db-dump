@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import AnyStr, Sequence, MutableSequence, Tuple, Dict, NewType
 
+from zope.interface import Interface, implementer
 
 DateTime = NewType('DateTime', datetime)
 
@@ -87,7 +88,12 @@ class ColumnInfo(KeyMixin, CompiledMixin, Mixin, SchemaItemInfo):
 
 
 # relative mirror of Mapper for those attributes we care about
+class IMapperInfo(Interface):
+    pass
+
+
 @dataclass
+@implementer(IMapperInfo)
 class MapperInfo(Mixin):
     primary_key: MutableSequence[TableColumnSpecInfo] = field(default_factory=lambda: [])
     columns: Sequence[ColumnInfo] = field(default_factory=lambda: [])
