@@ -1,4 +1,3 @@
-from __future__ import annotations
 import platform
 import sysconfig
 from dataclasses import dataclass, field
@@ -68,7 +67,7 @@ class RelationshipInfo(KeyMixin, Mixin, StrategizedPropertyInfo):
     # backref: AnyStr=None
     local_remote_pairs: MutableSequence = None
     direction: AnyStr = None
-    mapper: MapperInfo = None
+    mapper: 'MapperInfo' = None
 
     def get_argument(self):
         return self.argument
@@ -95,10 +94,10 @@ class IMapperInfo(Interface):
 @dataclass
 @implementer(IMapperInfo)
 class MapperInfo(Mixin):
-    primary_key: MutableSequence[TableColumnSpecInfo] = field(default_factory=lambda: [])
+    primary_key: MutableSequence['TableColumnSpecInfo'] = field(default_factory=lambda: [])
     columns: Sequence[ColumnInfo] = field(default_factory=lambda: [])
     relationships: Sequence[RelationshipInfo] = field(default_factory=lambda: [])
-    local_table: TableInfo = None
+    local_table: 'TableInfo' = None
     entity: object = None
 
 
